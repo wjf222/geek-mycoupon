@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql
+    container_name: mysql
+    expose:
+      - 3306
+    environment:
+      - MYSQL_DATABASE=coupon
+      - MYSQL_USER=coupon
+      - MYSQL_PASSWORD=admin
+      - MYSQL_ROOT_PASSWORD=admin
+
+  redis:
+    image: redis
+    container_name: redis
+    expose:
+      - 6379
+
+  nacos:
+    image: nacos/nacos-server:${NACOS_VERSION}
+    container_name: nacos-standalone-mysql
+    env_file:
+      - ../env/nacos-standlone-mysql.env
+    volumes:
+      - ./standalone-logs/:/home/nacos/logs
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9555:9555"
+    depends_on:
+      - mysql
+    restart: always
+  rabbitmq:
+    image: rabbitmq:3.7-management
+    container_name: rabbitmq
+    expose:
+      - 5672
+      - 15672
+    ports:
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=spring
+      - RABBITMQ_DEFAULT_PASS=spring
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    depends_on:
+      - rabbitmq
+    expose:
+      - 9411
+    ports:
+      - 9411:9411
+    links:
+      - rabbitmq
+    # Wait for rabbitmq - Can use wait-for-it instead.
+    restart: always
+    environment:
+      - RABBIT_ADDRESSES=rabbitmq:5672
+      - RABBIT_USER=spring
+      - RABBIT_PASSWORD=spring
