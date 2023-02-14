@@ -82,9 +82,10 @@ public class CouponCustomerServiceImpl implements CouponCustomerService {
         Coupon example = Coupon.builder()
                 .userId(request.getUserId())
                 .status(CouponStatus.convert(request.getCouponStatus()))
+                .templateId(request.getCouponTemplateId())
                 .shopId(request.getShopId())
                 .build();
-
+//        log.info("Request template Id : {}",request.getCouponTemplateId());
         // 这里你可以尝试实现分页查询
         List<Coupon> coupons = couponDao.findAll(Example.of(example));
         if (CollectionUtils.isEmpty(coupons)) {

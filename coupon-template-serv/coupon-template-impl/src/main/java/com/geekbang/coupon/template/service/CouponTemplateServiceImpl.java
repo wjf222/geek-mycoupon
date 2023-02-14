@@ -3,12 +3,12 @@ package com.geekbang.coupon.template.service;
 import com.geekbang.coupon.template.api.beans.CouponTemplateInfo;
 import com.geekbang.coupon.template.api.beans.PagedCouponTemplateInfo;
 import com.geekbang.coupon.template.api.beans.TemplateSearchParams;
-import com.geekbang.coupon.template.api.beans.rules.Discount;
 import com.geekbang.coupon.template.api.enums.CouponType;
 import com.geekbang.coupon.template.converter.CouponTemplateConverter;
 import com.geekbang.coupon.template.dao.CouponTemplateDao;
 import com.geekbang.coupon.template.dao.entity.CouponTemplate;
 import com.geekbang.coupon.template.service.intf.CouponTemplateService;
+import com.geekbang.coupon.template.cache.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,6 +33,10 @@ public class CouponTemplateServiceImpl implements CouponTemplateService {
     @Autowired
     private CouponTemplateDao templateDao;
 
+    @Autowired
+    private RedisService redisService;
+
+    private Random random = new Random();
     // 克隆优惠券
     @Override
     public CouponTemplateInfo cloneTemplate(Long templateId) {
@@ -83,6 +84,7 @@ public class CouponTemplateServiceImpl implements CouponTemplateService {
 
     @Override
     public PagedCouponTemplateInfo search(TemplateSearchParams request) {
+
         CouponTemplate example = CouponTemplate.builder()
                 .shopId(request.getShopId())
                 .category(CouponType.convert(request.getType()))
@@ -126,8 +128,13 @@ public class CouponTemplateServiceImpl implements CouponTemplateService {
      */
     @Override
     public CouponTemplateInfo loadTemplateInfo(Long id) {
-        Optional<CouponTemplate> template = templateDao.findById(id);
-        return template.map(CouponTemplateConverter::convertToTemplateInfo).orElse(null);
+        CouponTemplateInfo cacheCoupon = (CouponTemplateInfo)  redisService.get(String.valueOf(id));
+        if(cacheCoupon == null) {
+            Optional<CouponTemplate> template = templateDao.findById(id);
+            cacheCoupon = template.map(CouponTemplateConverter::convertToTemplateInfo).orElse(null);
+            redisService.set(String.valueOf(id),cacheCoupon, random.nextLong());
+        }
+        return cacheCoupon;
     }
 
     // 将券无效化

@@ -161,11 +161,6 @@ spring:
       function:
         definition: addCoupon;deleteCoupon;addCouponDelay
       rabbit:
-        bindings:
-          # requeue重试
-#          addCoupon-in-0:
-#            consumer:
-#              requeue-rejected: true
           addCouponDelay-out-0:
             producer:
               delayed-exchange: true
