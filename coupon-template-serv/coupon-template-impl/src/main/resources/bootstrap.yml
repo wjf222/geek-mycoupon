@@ -23,8 +23,8 @@ spring:
         refresh-enabled: true
         # Nacos的扩展配置项，数字越大优先级越高
         enable-remote-sync-config: true
-        extension-configs:
-          # 可以添加其他节点
-          - dataId: rabbitmq-config.yml
-            group: EXT_GROUP
-            refresh: true
+#        extension-configs:
+#          # 可以添加其他节点
+#          - dataId: rabbitmq-config.yml
+#            group: EXT_GROUP
+#            refresh: true

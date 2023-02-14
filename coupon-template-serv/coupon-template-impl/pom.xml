@@ -35,15 +35,6 @@
             <artifactId>sentinel-datasource-nacos</artifactId>
         </dependency>
 
-        <!-- Sleuth + Zipkin链路追踪 -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-sleuth</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-sleuth-zipkin</artifactId>
-        </dependency>
         <!-- 提前剧透Stream -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

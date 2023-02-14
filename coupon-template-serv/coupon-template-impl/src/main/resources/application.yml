@@ -11,7 +11,7 @@ spring:
   datasource:
     # mysql数据源
     username: root
-#    password:
+    password: root
     url: jdbc:mysql://127.0.0.1:3306/geekbang_coupon_db?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -83,19 +83,19 @@ spring:
             groupId: SENTINEL_GROUP
             dataId: ${spring.application.name}-flow-rules
             rule-type: flow
-  sleuth:
-    sampler:
-      # 采样率的概率，100%采样
-      probability: 1
-      # 每秒采样数字最高为100
-      rate: 1000
-  zipkin:
-    sender:
-      type: rabbit
-#    base-url: http://localhost:9411/
-    rabbitmq:
-      addresses: 127.0.0.1:5672
-      queue: zipkin
+    stream:
+      # 如果你项目里只对接一个中间件，那么不用定义binders
+      # 当系统要定义多个不同消息中间件的时候，使用binders定义
+      binders:
+        my-rabbit:
+          type: rabbit # 消息中间件类型
+          environment: # 连接信息
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: spring
+                password: spring
 
 #logging:
 #  level:

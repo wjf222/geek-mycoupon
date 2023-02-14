@@ -10,9 +10,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @ComponentScan(basePackages = {"com.geekbang"})
 @EnableDiscoveryClient
-public class Application {
+public class TemplateApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(TemplateApplication.class, args);
     }
 }

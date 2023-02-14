@@ -45,10 +45,6 @@ spring:
             allow-credentials: true
             allowed-headers: "*"
 #        add-to-simple-url-handler-mapping: true
-  sleuth:
-    sampler:
-      probability: 1
-      rate: 1000
 
 
 management:
