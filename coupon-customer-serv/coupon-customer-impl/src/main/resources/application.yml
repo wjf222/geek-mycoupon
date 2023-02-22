@@ -4,14 +4,6 @@ server:
   error:
     include-message: always
 spring:
-  # RabbitMQ配置，这段配置即使不加也能正常工作，因为框架有默认值
-  # 如果stream只要对接一个MQ，定义在这就可以
-#  rabbitmq:
-#    host: localhost
-#    port: 5672
-#    username: guest
-#    password: guest
-  # 如果你的配置中心已经搭建好，并保存了这段datasource配置，那么可以注释掉
   datasource:
     # mysql数据源
     username: root
@@ -92,29 +84,22 @@ spring:
     stream:
       # 如果你项目里只对接一个中间件，那么不用定义binders
       # 当系统要定义多个不同消息中间件的时候，使用binders定义
-      binders:
-        my-rabbit:
-          type: rabbit # 消息中间件类型
-          environment: # 连接信息
-            spring:
-              rabbitmq:
-                host: localhost
-                port: 5672
-                username: guest
-                password: guest
+      kafka:
+        binder:
+          brokers: localhost:9092
+          required-acks: 1
+          auto-create-topics: true
       bindings:
         # 添加coupon - Producer
         addCoupon-out-0:
           destination: request-coupon-topic
           content-type: application/json
-          binder: my-rabbit
         # 添加coupon - Consumer
         addCoupon-in-0:
           destination: request-coupon-topic
           content-type: application/json
           # 消费组，同一个组内只能被消费一次
           group: add-coupon-group
-          binder: my-rabbit
           consumer:
             # 如果最大尝试次数为1，即不重试
             # 默认是做3次尝试
@@ -132,14 +117,12 @@ spring:
         addCouponDelay-out-0:
           destination: request-coupon-delayed-topic
           content-type: application/json
-          binder: my-rabbit
         # 延迟发券 - Consumer
         addCouponDelay-in-0:
           destination: request-coupon-delayed-topic
           content-type: application/json
           # 消费组，同一个组内只能被消费一次
           group: add-coupon-group
-          binder: my-rabbit
           consumer:
             # 如果最大尝试次数为1，即不重试
             # 默认是做3次尝试
@@ -148,30 +131,20 @@ spring:
         deleteCoupon-out-0:
           destination: delete-coupon-topic
           content-type: text/plain
-          binder: my-rabbit
         # 删除coupon - Consumer
         deleteCoupon-in-0:
           destination: delete-coupon-topic
           content-type: text/plain
           group: delete-coupon-group
-          binder: my-rabbit
           # 最大尝试次数为1，如果不设置的话，默认是做3次尝试
           consumer:
             max-attempts: 1
       function:
         definition: addCoupon;deleteCoupon;addCouponDelay
-      rabbit:
-          addCouponDelay-out-0:
-            producer:
-              delayed-exchange: true
-          addCouponDelay-in-0:
-            consumer:
-              delayed-exchange: true
-          deleteCoupon-in-0:
-            consumer:
-              auto-bind-dlq: true
+      default-binder: kafka
 
 #logging:
+#  level:
 #  level:
 #    com.geekbang.coupon: debug
 #    com.geekbang.coupon.customer.feign.TemplateService: debug

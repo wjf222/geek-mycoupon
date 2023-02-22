@@ -1,7 +1,9 @@
 package com.geekbang.coupon.customer.event;
 
 import com.geekbang.coupon.customer.api.beans.RequestCoupon;
+import com.geekbang.coupon.customer.api.beans.SearchCoupon;
 import com.geekbang.coupon.customer.service.intf.CouponCustomerService;
+import com.geekbang.coupon.template.api.beans.CouponInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +27,13 @@ public class CouponConsumer {
     public Consumer<RequestCoupon> addCoupon() {
         return request -> {
             log.info("received: {}", request);
+            SearchCoupon searchCoupon = new SearchCoupon();
+            searchCoupon.setUserId(request.getUserId());
+            searchCoupon.setCouponTemplateId(request.getCouponTemplateId());
+            List<CouponInfo> list = customerService.findCoupon(searchCoupon);
+            if(list.size() == 0) {
+                return;
+            }
             customerService.requestCoupon(request);
         };
     }
