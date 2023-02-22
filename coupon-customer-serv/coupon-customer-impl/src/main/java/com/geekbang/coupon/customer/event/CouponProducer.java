@@ -2,13 +2,16 @@ package com.geekbang.coupon.customer.event;
 
 import com.geekbang.coupon.customer.api.beans.RequestCoupon;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.utils.SystemTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.integration.kafka.dsl.Kafka;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.TimerTask;
 import java.util.concurrent.*;
 
 @Service
@@ -38,7 +41,8 @@ public class CouponProducer {
     @Async
     public void sendMessage() throws InterruptedException {
         while(true) {
-            DelayedTask delayedTask = delayQueue.poll();
+            DelayedTask delayedTask = delayQueue.poll(5,TimeUnit.SECONDS);
+            delayQueue.poll(1,TimeUnit.MILLISECONDS);
             // 这里应该并不需要线程池，先用着吧
             if(delayedTask != null) {
                 delayExecutor.execute(new Runnable() {
@@ -49,9 +53,6 @@ public class CouponProducer {
                                         .build());
                     }
                 });
-            } else {
-                // 如果没有延时消息，就休息
-                TimeUnit.SECONDS.sleep(5);
             }
         }
 
