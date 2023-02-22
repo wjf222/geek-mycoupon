@@ -13,12 +13,17 @@ public class RedisLimiterConfig {
     @Bean
     @Primary
     public KeyResolver remoteHostLimiterKey() {
+        // IP traffic limiting
         return exchange -> Mono.just(
                 exchange.getRequest()
                         .getRemoteAddress()
                         .getAddress()
                         .getHostAddress()
         );
+    }
+    @Bean
+    public KeyResolver apiKeyResolver() {
+        return exchange -> Mono.just(exchange.getRequest().getPath().toString());
     }
 
     @Bean("tempalteRateLimiter")
