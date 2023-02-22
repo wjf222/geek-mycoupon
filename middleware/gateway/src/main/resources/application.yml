@@ -21,6 +21,9 @@ spring:
           enabled: true
         watch-delay: 30000
     gateway:
+      loadbalancer:
+        ribbon:
+          enabled: false
       discovery:
         locator:
           lower-case-service-id: true
